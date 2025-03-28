@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Management Visualizer</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 50%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #memory-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 5px;
+            margin-top: 20px;
+        }
+        .memory-block {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            background-color: lightgray;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .occupied {
+            background-color: lightblue;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Memory Management Visualizer</h1>
+        
+        <h5><label for="memory-size">Memory Size (in KB):</label>
+        <input type="number" id="memory-size" min="1" value="32"></h5>
+        
+        <h5><label for="page-size">Page Size (in KB):</label>
+        <input type="number" id="page-size" min="1" value="4"></h5>
+        
+        <button onclick="initializeMemory()">Initialize Memory</button>
+        
+        <h2>Page Replacement Algorithms</h2>
+        <select id="algorithm">
+            <option value="FIFO">FIFO</option>
+            <option value="LRU">LRU</option>
+        </select>
+        <br><br>
+        <button onclick="simulateReplacement()">Simulate</button>
+        
+        <div id="memory-display"></div>
+        <div id="output"></div>
+    </div>
+    
+    <script>
+        let memoryBlocks = [];
+        let pageQueue = [];
+        const maxFrames = 5;
+        
+        function initializeMemory() {
+            const memorySize = parseInt(document.getElementById("memory-size").value);
+            const pageSize = parseInt(document.getElementById("page-size").value);
+            const numPages = Math.floor(memorySize / pageSize);
+            const memoryDisplay = document.getElementById("memory-display");
+            memoryDisplay.innerHTML = "";
+            memoryBlocks = new Array(numPages).fill(null);
+
+            document.getElementById("output").innerHTML = "<br>Memory initialized!";
+            
+            
+            for (let i = 0; i < numPages; i++) {
+                const block = document.createElement("div");
+                block.classList.add("memory-block");
+                block.textContent = i;
+                memoryDisplay.appendChild(block);
+            }
+            
+        }
+        
+        function simulateReplacement() {
+            const algorithm = document.getElementById("algorithm").value;
+            if (algorithm === "FIFO") {
+                fifoAlgorithm();
+            } else if (algorithm === "LRU") {
+                lruAlgorithm();
+            }
+        }
+        
+        function fifoAlgorithm() {
+            const output = document.getElementById("output");
+            output.innerHTML = "<br>FIFO Algorithm Simulation:<br>";
+            
+            for (let i = 1; i <= 10; i++) {
+                if (pageQueue.length >= maxFrames) {
+                    const removedPage = pageQueue.shift();
+                    output.innerHTML += `Removing page ${removedPage}, adding page ${i}<br>`;
+                }
+                pageQueue.push(i);
+                output.innerHTML += `Current Queue: [${pageQueue.join(", ")}]<br>`;
+            }
+        }
+        
+        function lruAlgorithm() {
+            const output = document.getElementById("output");
+            output.innerHTML = "LRU Algorithm Simulation:<br>";
+            let pages = [];
+            for (let i = 1; i <= 10; i++) {
+                if (!pages.includes(i)) {
+                    if (pages.length >= maxFrames) {
+                        const removedPage = pages.shift();
+                        output.innerHTML += `Removing least recently used page ${removedPage}, adding page ${i}<br>`;
+                    }
+                    pages.push(i);
+                } else {
+                    pages.splice(pages.indexOf(i), 1);
+                    pages.push(i);
+                }
+                output.innerHTML += `Current Pages: [${pages.join(", ")}]<br>`;
+            }
+        }
+    </script>
+</body>
+</html>
+
